@@ -6,47 +6,46 @@ var stringifyJSON = function (obj) {
   // your code goes here
 var returnStr="";
 
-	if(typeof obj == "string")
-		return obj;
-	else if(obj == null)
-		return obj="null";
-	else if(typeof obj === "boolean")
-		return obj.toString();	
-	else if(typeof obj == "string")
-		return '"'+obj+'"';
+	//router based on type of obj
+	switch (Object.prototype.toString.call(obj)){
+		case "[object Object]":
+			return stringifyObj(obj);
+			break;
+		case "[object Array]":
+			return stringifyArray(obj);
+			break;
+		case "[object String]":
+			return '"'+obj+'"';
+			break;
+		case "[object Null]":
+			return obj="null";
+			break;
+		case "[object Boolean]":
+			return obj.toString();	
+			break;
+		case "[object Number]":
+			return obj+"";
+			break;
+		case "[object Function]":
+		case "[object Undefined]":
+			return null;
+			break;	
+	};
 	
-	var tmpArray = [];
-	
-	for(var key in obj){
-		
-		if((Array.isArray(obj[key]) || typeof obj[key] === "object") && (obj[key] != null))
-			tmpArray.push(stringifyJSON(obj[key]));
-		else if(Array.isArray(obj)){
-			if(obj[key] == null)
-				tmpArray.push("null");
-			else if(typeof obj[key] == "boolean")
-				tmpArray.push(obj[key].toString()+"");
-			else if(typeof obj[key] == "string")
-				tmpArray.push('"'+obj[key].toString()+'"');
-			else
-				tmpArray.push(obj[key]+"");
+	function stringifyArray(arr){
+		for(var i=0; i<arr.length; i++){
+			returnStr += stringifyJSON(arr[i])+",";
 		}
-		else if(typeof obj === "object"){
-			if(obj == null)
-				tmpArray.push('"'+key+'"'+":"+"null");
-			else if(typeof obj[key] == "boolean")
-				tmpArray.push('"'+key+'"'+":"+obj[key].toString());
-			else if(typeof obj[key] == "string")
-				tmpArray.push('"'+key+'"'+":"+'"'+obj[key].toString()+'"');
-			else
-				tmpArray.push('"'+key+'"'+":"+obj[key]);
-		}		
-		
+		returnStr = returnStr.substr(0,returnStr.length-1);
+		return ("["+returnStr+"]");
 	}
-	if(Array.isArray(obj)){
-		return ("["+tmpArray+"]");
-	}
-	else if(typeof obj == "object"){
-		return ("{"+tmpArray+"}");
+
+	function stringifyObj(obj){
+		for(var key in obj){
+			if(stringifyJSON(obj[key]) != null)
+				returnStr += stringifyJSON(key) + ":" + stringifyJSON(obj[key])+",";
+		}
+		returnStr = returnStr.substr(0,returnStr.length-1);
+		return ("{"+returnStr+"}");
 	}
 };
